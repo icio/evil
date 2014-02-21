@@ -69,7 +69,7 @@ def test_setquery_bad_operators():
         setquery("a", lambda: 0, [(")", lambda: 0, 1)])
 
 
-def left_right_operators():
+def left_right_ops():
     return [
         op("<", lambda a: set(), left=True),
         op(">", lambda a: set(), right=True),
@@ -78,15 +78,15 @@ def left_right_operators():
 
 
 def test_setquery_left_right():
-    eq_(setquery("> b", lambda t: set(), left_right_operators()), set())
-    eq_(setquery("a <", lambda t: set(), left_right_operators()), set())
-    eq_(setquery("a <> b", lambda t: set(), left_right_operators()), set())
+    eq_(setquery("> b", lambda t: set(), left_right_ops()), set())
+    eq_(setquery("a <", lambda t: set(), left_right_ops()), set())
+    eq_(setquery("a <> b", lambda t: set(), left_right_ops()), set())
 
 
 @raises(SyntaxError)
 def test_setquery_op_left_missing():
     try:
-        setquery("< b", lambda t: set(), left_right_operators())
+        setquery("< b", lambda t: set(), left_right_ops())
     except TypeError as e:
         eq_(e.args[0], "Operators which act on expressions to their "
                        "left or both sides cannot be at the beginning "
@@ -97,7 +97,7 @@ def test_setquery_op_left_missing():
 @raises(SyntaxError)
 def test_setquery_op_right_missing():
     try:
-        setquery("a >", lambda t: set(), left_right_operators())
+        setquery("a >", lambda t: set(), left_right_ops())
     except SyntaxError as e:
         eq_(e.args[0], "Operators which act on expressions to their "
                        "right or both sides cannot be at the end of "
@@ -108,24 +108,24 @@ def test_setquery_op_right_missing():
 @raises(SyntaxError)
 def test_setquery_op_either_missing():
     try:
-        setquery("a <>", lambda t: set(), left_right_operators())
+        setquery("a <>", lambda t: set(), left_right_ops())
     except TypeError:
-        setquery("<> b", lambda t: set(), left_right_operators())
+        setquery("<> b", lambda t: set(), left_right_ops())
 
 
 @raises(SyntaxError)
 def test_setquery_op_opposing():
     try:
-        setquery("a > < b", lambda t: set(), left_right_operators())
+        setquery("a > < b", lambda t: set(), left_right_ops())
     except SyntaxError as e:
         eq_(e.args[0], "Operators cannot be beside one another if they act on "
                        "expressions facing one-another.")
-        setquery("a <> <> b", lambda t: set(), left_right_operators())
+        setquery("a <> <> b", lambda t: set(), left_right_ops())
 
 
 def test_setquery_op_double():
-    eq_(setquery("a > > b", lambda t: set(), left_right_operators()), set())
-    eq_(setquery("a < < b", lambda t: set(), left_right_operators()), set())
+    eq_(setquery("a > > b", lambda t: set(), left_right_ops()), set())
+    eq_(setquery("a < < b", lambda t: set(), left_right_ops()), set())
 
 
 def test_setquery():
