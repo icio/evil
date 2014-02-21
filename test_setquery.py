@@ -162,7 +162,7 @@ def test_daclookup():
             for depdepnode in node_dependencies(depnode, graph):
                 yield depdepnode
 
-    # Create a DAC where each node has dependencies delcared by name
+    # Create a DAC where each node has dependencies declared by name
     # +-----+       +-----+
     # | b_b |       | c.b |
     # +-----+       +-----+
@@ -202,7 +202,7 @@ def test_daclookup():
         set(["a.a", "a.b", "b.a", "c.a"])
     )
 
-    # All nodes matching *.a of the dependencies of all nodes matching *.b
+    # (Nodes matching *.a of (the dependencies of (all nodes matching *.b)))
     eq_(
         setquery(
             "^*.b = *.a",
