@@ -202,7 +202,7 @@ def test_daclookup():
         set(["a.a", "a.b", "b.a", "c.a"])
     )
 
-    # Fuck yeah.
+    # All nodes matching *.a of the dependencies of all nodes matching *.b
     eq_(
         setquery(
             "^*.b = *.a",
