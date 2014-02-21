@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from collections import OrderedDict
-from fnmatch import fnmatch
+import fnmatch
 import re
 
 
@@ -171,10 +171,7 @@ def op(token, func, left=False, right=False):
 
 
 def strlookup(pattern, space):
-    return filter(
-        lambda x: fnmatch(str(x), pattern),
-        space
-    )
+    return fnmatch.filter(space, pattern)
 
 
 if __name__ == "__main__":
