@@ -34,7 +34,7 @@ def setquery(query, lookup, operators=None, tokenizer=None):
     if operators is None:
         operators = set_operators()
 
-    operators = OrderedDict({op[0]: op[1:] for op in operators})
+    operators = OrderedDict((op[0], op[1:]) for op in operators)
     if "(" in operators or ")" in operators:
         raise ValueError("( and ) are reserved operators")
 
