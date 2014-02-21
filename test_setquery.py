@@ -1,4 +1,5 @@
 from functools import partial
+from itertools import chain
 from nose.tools import eq_, raises
 from tempfile import mkdtemp
 import os
@@ -7,6 +8,7 @@ from setquery import globlookup
 from setquery import op
 from setquery import OP_BOTH, OP_LEFT, OP_RIGHT
 from setquery import setquery
+from setquery import set_operators
 from setquery import strlookup
 
 
@@ -151,3 +153,49 @@ def test_globlookup():
 
     # Test the lookup within setquery
     eq_(setquery("a/* = */a", lookup), set(["a/a/a", "a/b/a", "a/c/a"]))
+
+
+def test_daclookup():
+    def node_dependencies(node, graph):
+        yield node
+        for depnode in graph[node]:
+            for depdepnode in node_dependencies(depnode, graph):
+                yield depdepnode
+
+    # Create a DAC where each node has dependencies delcared by name
+    # digraph {
+    #     a_a; a_b -> a_a
+    #     b_a -> a_b; b_b -> b_a
+    #     c_a -> a_b; c_b -> c_a
+    # }
+    graph = {
+        "a.a": [],
+        "a.b": ["a.a"],
+        "b.a": ["a.b"],
+        "b.b": ["b.a"],
+        "c.a": ["a.b"],
+        "c.b": ["c.a"],
+    }
+
+    # The node lookup and dependency operator
+    node_lookup = partial(strlookup, space=graph.keys())
+    dependency_op = lambda nodes: set(chain(*[
+        node_dependencies(node, graph) for node in nodes
+    ]))
+
+    # Assert that the node and dependency lookups are working
+    eq_(set(node_lookup("a.*")), set(["a.a", "a.b"]))
+    eq_(
+        set(dependency_op(node_lookup("*.a"))),
+        set(["a.a", "a.b", "b.a", "c.a"])
+    )
+
+    # Fuck yeah.
+    eq_(
+        setquery(
+            "^*.b = *.a",
+            node_lookup,
+            [op("^", dependency_op, right=True)] + set_operators()
+        ),
+        set(["a.a", "b.a", "c.a"])
+    )
