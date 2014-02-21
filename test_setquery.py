@@ -1,38 +1,10 @@
 from functools import partial
 from nose.tools import eq_, raises
 
-from setquery import argument_default
 from setquery import op
 from setquery import OP_BOTH, OP_LEFT, OP_RIGHT
 from setquery import setquery
 from setquery import strlookup
-
-
-def x(a, b, c=1, d=2):
-    pass
-
-
-def test_argument_default():
-    eq_(argument_default(x, "c"), 1)
-    eq_(argument_default(x, "d"), 2)
-
-
-@raises(ValueError)
-def test_argument_default_missing():
-    try:
-        argument_default(x, "e")
-    except ValueError as e:
-        eq_(e.args, ("%r does not have a parameter %s", x, "e"))
-        raise e
-
-
-@raises(ValueError)
-def test_argument_default_unset():
-    try:
-        argument_default(x, "b")
-    except ValueError as e:
-        eq_(e.args, ("%r has no default for %s", x, "b"))
-        raise e
 
 
 def test_op():
