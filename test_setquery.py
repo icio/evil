@@ -164,12 +164,12 @@ def test_daclookup():
 
     # Create a DAC where each node has dependencies declared by name
     # +-----+       +-----+
-    # | b_b |       | c.b |
+    # | b.b |       | c.b |
     # +-----+       +-----+
     #   |               |
     #   v               v
     # +-----+       +-----+
-    # | b_a |       | c.a |
+    # | b.a |       | c.a |
     # +-----+       +-----+
     #   |               |
     #   |    +-----+    |
