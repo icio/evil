@@ -163,11 +163,23 @@ def test_daclookup():
                 yield depdepnode
 
     # Create a DAC where each node has dependencies delcared by name
-    # digraph {
-    #     a_a; a_b -> a_a
-    #     b_a -> a_b; b_b -> b_a
-    #     c_a -> a_b; c_b -> c_a
-    # }
+    # +-----+       +-----+
+    # | b_b |       | c.b |
+    # +-----+       +-----+
+    #   |               |
+    #   v               v
+    # +-----+       +-----+
+    # | b_a |       | c.a |
+    # +-----+       +-----+
+    #   |               |
+    #   |    +-----+    |
+    #   +--> | a.b | <--+
+    #        +-----+
+    #           |
+    #           v
+    #        +-----+
+    #        | a.a |
+    #        +-----+
     graph = {
         "a.a": [],
         "a.b": ["a.a"],
