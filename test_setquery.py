@@ -194,6 +194,7 @@ def test_daclookup():
     dependency_op = lambda nodes: set(chain(*[
         node_dependencies(node, graph) for node in nodes
     ]))
+    node_operators = [op("^", dependency_op, right=True)] + set_operators()
 
     # Assert that the node and dependency lookups are working
     eq_(set(node_lookup("a.*")), set(["a.a", "a.b"]))
@@ -204,10 +205,6 @@ def test_daclookup():
 
     # (Nodes matching *.a of (the dependencies of (all nodes matching *.b)))
     eq_(
-        setquery(
-            "^*.b = *.a",
-            node_lookup,
-            [op("^", dependency_op, right=True)] + set_operators()
-        ),
+        setquery("^*.b = *.a", node_lookup, node_operators),
         set(["a.a", "b.a", "c.a"])
     )
