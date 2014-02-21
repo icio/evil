@@ -189,8 +189,11 @@ def test_daclookup():
         "c.b": ["c.a"],
     }
 
-    # The node lookup and dependency operator
+    # The node lookup
     node_lookup = partial(strlookup, space=graph.keys())
+
+    # The node operators. dependency_op returns the given node and all other
+    # nodes up the chain from it.
     dependency_op = lambda nodes: set(chain(*[
         node_dependencies(node, graph) for node in nodes
     ]))
