@@ -25,6 +25,8 @@ def setquery(query, lookup, operators=None, tokenizer=None):
                       evaluation per the lookup and operators. Defaults to
                       setquery.query_tokenizer.
     :raises: ValueError, SyntaxError
+    :returns: set
+
     """
     if tokenizer is None:
         tokenizer = query_tokenizer
@@ -59,8 +61,9 @@ def setquery_eval(tokens, lookup, operators):
                    operator token or round brackets.
     :param operators: A precedence-ordered dictionary of (function, side)
                       tuples keyed on the operator token.
-    """
+    :raises: SyntaxError
 
+    """
     # Token evaluation and lookups
 
     expr = []
@@ -149,8 +152,7 @@ def query_tokenizer(query, operator_tokens):
 
 def op(token, func, left=False, right=False):
     """
-    A more verbose syntax for declaring operators. Where left == right it is
-    inferred that the token is both-sided.
+    A more verbose syntax for declaring operators.
 
     :param token: The string token of the operator. Usually a single character.
     :param func: A callable used to evaluate its arguments. Where the operator
@@ -160,6 +162,8 @@ def op(token, func, left=False, right=False):
                  expression to the left of it.
     :param right: A boolean indicating whether the operator applies to the
                   expression to the right of it.
+    :returns: a tuple (token, func, side) where side is OP_BOTH if left and
+              right (or neither) and OP_LEFT if left, otherwise OP_RIGHT.
 
     """
     both = (left == right)
