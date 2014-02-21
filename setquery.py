@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 from collections import OrderedDict
 from fnmatch import fnmatch
-from inspect import getargspec
 import re
 
 
@@ -165,21 +164,6 @@ def op(token, func, left=False, right=False):
     """
     both = (left == right)
     return (token, func, OP_BOTH if both else OP_LEFT if left else OP_RIGHT)
-
-
-def argument_default(func, arg):
-    """Get the default of an argument of a function."""
-    args = getargspec(func)
-    try:
-        index = args.args.index(arg)
-    except ValueError:
-        raise ValueError("%r does not have a parameter %s", func, arg)
-
-    offset = len(args.args) - len(args.defaults)
-    if index < offset:
-        raise ValueError("%r has no default for %s", func, arg)
-
-    return args.defaults[index - offset]
 
 
 def strlookup(pattern, space):
