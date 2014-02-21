@@ -1,6 +1,9 @@
 from functools import partial
 from nose.tools import eq_, raises
+from tempfile import mkdtemp
+import os
 
+from setquery import globlookup
 from setquery import op
 from setquery import OP_BOTH, OP_LEFT, OP_RIGHT
 from setquery import setquery
@@ -120,3 +123,31 @@ def test_setquery():
         set(["a.b.a", "a.c.a"]))
     eq_(setquery("(a.* + b.*) = (*.b.*, *.c.*) = *.c", lookup),
         set(["a.b.c", "a.c.c", "b.b.c", "b.c.c"]))
+
+
+def test_globlookup():
+    # Create temporary files equivalent to those used in test_strlookup
+    tmp = mkdtemp()
+    chars = ("a", "b", "c")
+    for l1 in chars:
+        os.mkdir(os.path.join(tmp, l1))
+        for l2 in chars:
+            os.mkdir(os.path.join(tmp, l1, l2))
+            for l3 in chars:
+                f = os.path.join(tmp, l1, l2, l3)
+                with open(f, "w") as fh:
+                    fh.write(f)
+
+    # Test the lookup
+    lookup = partial(globlookup, root=tmp)
+    eq_(list(lookup("a/a/*")), ["a/a/a", "a/a/b", "a/a/c"])
+    eq_(list(lookup("a/*/a")), ["a/a/a", "a/b/a", "a/c/a"])
+    eq_(list(lookup("*/a/a")), ["a/a/a", "b/a/a", "c/a/a"])
+    eq_(list(lookup("a/*")), [
+        "a/a/a", "a/a/b", "a/a/c",
+        "a/b/a", "a/b/b", "a/b/c",
+        "a/c/a", "a/c/b", "a/c/c",
+        ])
+
+    # Test the lookup within setquery
+    eq_(setquery("a/* = */a", lookup), set(["a/a/a", "a/b/a", "a/c/a"]))

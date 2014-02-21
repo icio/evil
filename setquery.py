@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from collections import OrderedDict
 import fnmatch
+import os
 import re
 
 
@@ -172,6 +173,14 @@ def op(token, func, left=False, right=False):
 
 def strlookup(pattern, space):
     return fnmatch.filter(space, pattern)
+
+
+def globlookup(pattern, root):
+    for subdir, dirnames, filenames in os.walk(root):
+        d = subdir[len(root) + 1:]
+        files = (os.path.join(d, f) for f in filenames)
+        for f in fnmatch.filter(files, pattern):
+            yield f
 
 
 if __name__ == "__main__":
