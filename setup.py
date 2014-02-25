@@ -10,7 +10,7 @@ setup(
     url="https://github.com/icio/setquery",
     download_url="https://github.com/icio/setquery/tarball/0.1",
     setup_requires=["nose", "rednose"],
-    py_modules=["setquery"],
+    py_modules=["setquery", "test_setquery"],
     license="MIT",
     keywords=['set', 'expression', 'eval', 'evaluate'],
     classifiers=[],
