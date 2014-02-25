@@ -1,5 +1,4 @@
 from functools import partial
-from itertools import chain
 from nose.tools import eq_, raises
 from tempfile import mkdtemp
 import os
@@ -194,9 +193,9 @@ def test_daclookup():
 
     # The node operators. dependency_op returns the given node and all other
     # nodes up the chain from it.
-    dependency_op = lambda nodes: set(chain(*[
-        node_dependencies(node, graph) for node in nodes
-    ]))
+    dependency_op = lambda nodes: set(
+        dep for node in nodes for dep in node_dependencies(node, graph)
+    )
     node_operators = [op("^", dependency_op, right=True)] + set_operators()
 
     # Assert that the node and dependency lookups are working
