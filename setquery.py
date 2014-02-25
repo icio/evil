@@ -139,6 +139,7 @@ def setquery_eval(tokens, lookup, operators):
 
 
 def query_tokenizer(query, operator_tokens):
+    operator_tokens.sort(key=len, reverse=True)
     for m in re.finditer(
         r"""(\s+) |            # Whitespace
             ({0}) |            # Operators

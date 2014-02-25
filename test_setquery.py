@@ -6,6 +6,7 @@ import os
 from setquery import globlookup
 from setquery import op
 from setquery import OP_BOTH, OP_LEFT, OP_RIGHT
+from setquery import query_tokenizer
 from setquery import setquery
 from setquery import set_operators
 from setquery import strlookup
@@ -35,6 +36,23 @@ def test_strlookup():
         "a.b.a", "a.b.b", "a.b.c",
         "a.c.a", "a.c.b", "a.c.c",
         ])
+
+
+def test_query_tokenizer():
+    eq_(
+        list(query_tokenizer(
+            "^^ ^ (a, b + c)",
+            ["^", "^^", "(", ")", "+", "-", ","]
+        )),
+        ["^^", "^", "(", "a", ",", "b", "+", "c", ")"]
+    )
+    eq_(
+        list(query_tokenizer(
+            "^ ^ ^ (a, b + c)",
+            ["^", "^^", "(", ")", "+", "-", ","]
+        )),
+        ["^", "^", "^", "(", "a", ",", "b", "+", "c", ")"]
+    )
 
 
 @raises(ValueError)
