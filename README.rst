@@ -6,11 +6,12 @@ Setquery is a utility library for evaluating single expressions composed of patt
 Development
 -----------
 
-:code: bash
-   # Prepare environment:
-   virtualenv .
-   . bin/activate
-   pip install nose rednose
+To prepare an environment variable you must have nose and rednose installed::
 
-   # Run tests
-   python setup.py -q nosetests
+  $ virtualenv .
+  $ . bin/activate
+  (setquery)$ pip install nose rednose
+  (setquery)$ python setup.py -q nosetests
+  .............
+  -----------------------------------------------------------------
+  13 tests run in 0.0 seconds (13 tests passed)
