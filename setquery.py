@@ -11,7 +11,7 @@ import re
 OP_LEFT, OP_RIGHT, OP_BOTH = 1, 2, 3
 
 
-def setquery(query, lookup, operators=None, tokenizer=None):
+def setquery(query, lookup, operators=None, tokenizer=None, reducer=None):
     """
     :param query: The string query to evaluate
     :param lookup: A callable which takes a single pattern argument and returns
@@ -25,6 +25,9 @@ def setquery(query, lookup, operators=None, tokenizer=None):
     :param tokenizer: A callable which will break the query into tokens for
                       evaluation per the lookup and operators. Defaults to
                       setquery.query_tokenizer.
+    :param reducer: A callable which takes a sequential list of values (from
+                    operations or lookups) and combines them into a result.
+                    Typical behaviour is that of the + operator.
     :raises: ValueError, SyntaxError
     :returns: set
 
@@ -33,6 +36,8 @@ def setquery(query, lookup, operators=None, tokenizer=None):
         tokenizer = query_tokenizer
     if operators is None:
         operators = set_operators()
+    if reducer is None:
+        reducer = lambda expr: expr[0].union(*expr[1:])
 
     operators = OrderedDict((op[0], op[1:]) for op in operators)
     if "(" in operators or ")" in operators:
@@ -41,7 +46,7 @@ def setquery(query, lookup, operators=None, tokenizer=None):
     operator_tokens = ["(", ")"] + operators.keys()
     tokens = tokenizer("(%s)" % query, operator_tokens)
 
-    return setquery_eval(tokens, lookup, operators)
+    return setquery_eval(tokens, lookup, operators, reducer)
 
 
 def set_operators():
@@ -53,7 +58,7 @@ def set_operators():
     ]
 
 
-def setquery_eval(tokens, lookup, operators):
+def setquery_eval(tokens, lookup, operators, reducer):
     """
     :param tokens: An iterable of string tokens to evaluate.
     :param lookup: A callable which takes a single pattern argument and returns
@@ -61,6 +66,9 @@ def setquery_eval(tokens, lookup, operators):
                    operator token or round brackets.
     :param operators: A precedence-ordered dictionary of (function, side)
                       tuples keyed on the operator token.
+    :param reducer: A callable which takes a sequential list of values (from
+                    operations or lookups) and combines them into a result.
+                    Typical behaviour is that of the + operator.
     :raises: SyntaxError
 
     """
@@ -71,7 +79,7 @@ def setquery_eval(tokens, lookup, operators):
     prev_op_side = None
     for t, token in enumerate(tokens):
         if token == "(":
-            expr.append(setquery_eval(tokens, lookup, operators))
+            expr.append(setquery_eval(tokens, lookup, operators, reducer))
         elif token == ")":
             if prev_op_side is not None and prev_op_side & OP_RIGHT:
                 raise SyntaxError("Operators which act on expressions to "
@@ -134,7 +142,7 @@ def setquery_eval(tokens, lookup, operators):
                         explen -= 2
                 t += 1
 
-    return expr[0].union(*expr[1:])
+    return reducer(expr)
 
 
 def query_tokenizer(query, operator_tokens):
