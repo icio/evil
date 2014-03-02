@@ -50,7 +50,6 @@ def set_operators():
         ("+", set.union, OP_BOTH),
         ("-", set.difference, OP_BOTH),
         (",", set.union, OP_BOTH),
-        # ("^", lambda right: set(item.deps() for item in right), OP_RIGHT)
     ]
 
 
