@@ -46,7 +46,7 @@ def setquery(query, lookup, operators=None, tokenizer=None, reducer=None):
     operator_tokens = ["(", ")"] + operators.keys()
     tokens = tokenizer("(%s)" % query, operator_tokens)
 
-    return setquery_eval(tokens, lookup, operators, reducer)
+    return setquery_eval(tokens, lookup, operators, reducer, cast=set)
 
 
 def set_operators():
@@ -58,7 +58,7 @@ def set_operators():
     ]
 
 
-def setquery_eval(tokens, lookup, operators, reducer):
+def setquery_eval(tokens, lookup, operators, reducer, cast):
     """
     :param tokens: An iterable of string tokens to evaluate.
     :param lookup: A callable which takes a single pattern argument and returns
@@ -69,6 +69,8 @@ def setquery_eval(tokens, lookup, operators, reducer):
     :param reducer: A callable which takes a sequential list of values (from
                     operations or lookups) and combines them into a result.
                     Typical behaviour is that of the + operator.
+    :param cast: A callable which transforms the results of the lookup into
+                 the type expected by the operators.
     :raises: SyntaxError
 
     """
@@ -79,7 +81,8 @@ def setquery_eval(tokens, lookup, operators, reducer):
     prev_op_side = None
     for t, token in enumerate(tokens):
         if token == "(":
-            expr.append(setquery_eval(tokens, lookup, operators, reducer))
+            expr.append(setquery_eval(tokens, lookup, operators,
+                                      reducer, cast))
         elif token == ")":
             if prev_op_side is not None and prev_op_side & OP_RIGHT:
                 raise SyntaxError("Operators which act on expressions to "
@@ -101,7 +104,7 @@ def setquery_eval(tokens, lookup, operators, reducer):
             prev_op_side = op_side
             continue
         else:
-            expr.append(set(lookup(token)))
+            expr.append(cast(lookup(token)))
         prev_op_side = None
 
     # Operator evaluation
