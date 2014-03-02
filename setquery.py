@@ -37,7 +37,7 @@ def query(query, lookup, operators, cast, reducer, tokenizer):
         raise ValueError("( and ) are reserved operators")
 
     operator_tokens = ["(", ")"] + operators.keys()
-    tokens = tokenizer("(%s)" % query, operator_tokens)
+    tokens = tokenizer(query, operator_tokens)
 
     return setquery_eval(tokens, lookup, operators, reducer, cast=set)
 
@@ -81,76 +81,102 @@ def setquery_eval(tokens, lookup, operators, reducer, cast):
     :raises: SyntaxError
 
     """
-    # Token evaluation and lookups
-
-    expr = []
     tokens = iter(tokens)
-    prev_op_side = None
-    for t, token in enumerate(tokens):
-        if token == "(":
-            expr.append(setquery_eval(tokens, lookup, operators,
-                                      reducer, cast))
-        elif token == ")":
-            if prev_op_side is not None and prev_op_side & OP_RIGHT:
-                raise SyntaxError("Operators which act on expressions to "
-                                  "their right or both sides cannot be at "
-                                  "the end of an expression.")
-            break
-        elif token in operators:
-            op_side = operators[token][1]
-            if t == 0 and op_side & OP_LEFT:
-                raise SyntaxError("Operators which act on expressions to "
-                                  "their left or both sides cannot be at "
-                                  "the beginning of an expression.")
-            if prev_op_side is not None:
-                if prev_op_side & OP_RIGHT and op_side & OP_LEFT:
-                    raise SyntaxError("Operators cannot be beside one another "
-                                      "if they act on expressions facing "
-                                      "one-another.")
-            expr.append(token)
-            prev_op_side = op_side
+    levels = [[]]
+
+    while True:
+        # Token evaluation and lookups
+
+        expr = levels.pop()           # The currently-constructed expression
+        new_level = False             # We should step into a subexpression
+        first_token = len(expr) == 0  # The first (sub)exp. token
+
+        prev_op_side = None           # The side of the last-seen operator
+        try:
+            # Try to get the side of the last operator from an expression
+            # which we are going to continue constructing.
+            prev_op_side = operators[expr[-1]][1]
+        except:
+            pass
+
+        for token in tokens:
+
+            if token == "(":
+                new_level = True
+                break
+            elif token == ")":
+                break
+            elif token in operators:
+                op_side = operators[token][1]
+                if first_token and op_side & OP_LEFT:
+                    raise SyntaxError("Operators which act on expressions to "
+                                      "their left or both sides cannot be at "
+                                      "the beginning of an expression.")
+                if prev_op_side is not None:
+                    if prev_op_side & OP_RIGHT and op_side & OP_LEFT:
+                        raise SyntaxError("Operators cannot be beside one "
+                                          "another if they act on expressions "
+                                          "facing one-another.")
+                expr.append(token)
+                prev_op_side = op_side
+                continue
+            else:
+                expr.append(cast(lookup(token)))
+                prev_op_side = None
+
+            first_token = False
+
+        if new_level:
+            levels.append(expr)
+            levels.append([])
             continue
-        else:
-            expr.append(cast(lookup(token)))
-        prev_op_side = None
+        elif prev_op_side is not None and prev_op_side & OP_RIGHT:
+            raise SyntaxError("Operators which act on expressions to their "
+                              "right or both sides cannot be at the end of "
+                              "an expression.")
 
-    # Operator evaluation
+        # Operator evaluation
 
-    explen = len(expr)
-    for op, (op_eval, op_side) in operators.iteritems():
-        if op_side is OP_RIGHT:
+        explen = len(expr)
+        for op, (op_eval, op_side) in operators.iteritems():
+            if op_side is OP_RIGHT:
 
-            # Apply right-sided operators. We loop from the end backward so
-            # that multiple such operators next to noe another are resolved
-            # in the correct order
-            t = explen - 1
-            while t >= 0:
-                if expr[t] == op:
-                    expr[t] = op_eval(expr[t + 1])
-                    del expr[t + 1]
-                    explen -= 1
-                t -= 1
-
-        else:
-
-            # Apply left- and both-sided operators. We loop forward so that
-            # that multiple such operators next to one another are resolved
-            # in the correct order.
-            t = 0
-            while t < explen:
-                if expr[t] == op:
-                    # Apply left- or both-sided operators
-                    if op_side is OP_LEFT:
-                        expr[t] = op_eval(expr[t - 1])
-                        del expr[t - 1]
-                        t -= 1
+                # Apply right-sided operators. We loop from the end backward so
+                # that multiple such operators next to noe another are resolved
+                # in the correct order
+                t = explen - 1
+                while t >= 0:
+                    if expr[t] == op:
+                        expr[t] = op_eval(expr[t + 1])
+                        del expr[t + 1]
                         explen -= 1
-                    elif op_side is OP_BOTH:
-                        expr[t] = op_eval(expr[t - 1], expr[t + 1])
-                        del expr[t + 1], expr[t - 1]
-                        t -= 1
-                        explen -= 2
-                t += 1
+                    t -= 1
+
+            else:
+
+                # Apply left- and both-sided operators. We loop forward so that
+                # that multiple such operators next to one another are resolved
+                # in the correct order.
+                t = 0
+                while t < explen:
+                    if expr[t] == op:
+                        # Apply left- or both-sided operators
+                        if op_side is OP_LEFT:
+                            expr[t] = op_eval(expr[t - 1])
+                            del expr[t - 1]
+                            t -= 1
+                            explen -= 1
+                        elif op_side is OP_BOTH:
+                            expr[t] = op_eval(expr[t - 1], expr[t + 1])
+                            del expr[t + 1], expr[t - 1]
+                            t -= 1
+                            explen -= 2
+                    t += 1
+
+        if len(levels) > 0:
+            levels[-1].append(reducer(expr))
+        else:
+            break
 
     return reducer(expr)
 

@@ -140,6 +140,8 @@ def test_setquery():
         set(["a.a.b", "a.a.c"]))
     eq_(setquery("a.*.a - a.a.*", lookup),
         set(["a.b.a", "a.c.a"]))
+    eq_(setquery("(a.*) = (a.b.*) = (a.b.c)", lookup),
+        set(["a.b.c"]))
     eq_(setquery("(a.* + b.*) = (*.b.*, *.c.*) = *.c", lookup),
         set(["a.b.c", "a.c.c", "b.b.c", "b.c.c"]))
 
