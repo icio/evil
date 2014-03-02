@@ -11,7 +11,7 @@ import re
 OP_LEFT, OP_RIGHT, OP_BOTH = 1, 2, 3
 
 
-def setquery(query, lookup, operators=None, tokenizer=None, reducer=None):
+def query(query, lookup, operators, cast, reducer, tokenizer):
     """
     :param query: The string query to evaluate
     :param lookup: A callable which takes a single pattern argument and returns
@@ -32,13 +32,6 @@ def setquery(query, lookup, operators=None, tokenizer=None, reducer=None):
     :returns: set
 
     """
-    if tokenizer is None:
-        tokenizer = query_tokenizer
-    if operators is None:
-        operators = set_operators()
-    if reducer is None:
-        reducer = lambda expr: expr[0].union(*expr[1:])
-
     operators = OrderedDict((op[0], op[1:]) for op in operators)
     if "(" in operators or ")" in operators:
         raise ValueError("( and ) are reserved operators")
@@ -47,6 +40,20 @@ def setquery(query, lookup, operators=None, tokenizer=None, reducer=None):
     tokens = tokenizer("(%s)" % query, operator_tokens)
 
     return setquery_eval(tokens, lookup, operators, reducer, cast=set)
+
+
+def setquery(expr, lookup, operators=None, cast=None, reducer=None,
+             tokenizer=None):
+    if operators is None:
+        operators = set_operators()
+    if cast is None:
+        cast = set
+    if reducer is None:
+        reducer = lambda expr: set.union(*expr)
+    if tokenizer is None:
+        tokenizer = query_tokenizer
+    return query(query=expr, lookup=lookup, operators=operators, cast=cast,
+                 reducer=reducer, tokenizer=tokenizer)
 
 
 def set_operators():
