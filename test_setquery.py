@@ -117,6 +117,17 @@ def test_setquery_op_opposing():
         setquery("a <> <> b", lambda t: set(), left_right_ops())
 
 
+@raises(SyntaxError)
+def test_setquery_op_right_nested_missing():
+    try:
+        setquery("(a >) < b", lambda t: set(), left_right_ops())
+    except SyntaxError as e:
+        eq_(e.args[0], "Operators which act on expressions to their right or "
+                       "both sides cannot be at the end of an expression.")
+        setquery("a (< b)", lambda t: set(), left_right_ops())
+        raise e
+
+
 def test_setquery_op_double():
     eq_(setquery("a > > b", lambda t: set(), left_right_ops()), set())
     eq_(setquery("a < < b", lambda t: set(), left_right_ops()), set())
