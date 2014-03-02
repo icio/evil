@@ -5,12 +5,15 @@ env
 *.so
 
 # Packages
+.Python
 *.egg
 *.egg-info
 dist
 build
 eggs
 parts
+include
+man
 bin
 var
 sdist
