@@ -15,12 +15,12 @@ def num(n):
         return float(n)
 
 
-def math_evil(expr, lookup=None, operators=None, cast=None, reducer=None,
-              tokenizer=None):
+def maths_evil(expr, lookup=None, operators=None, cast=None, reducer=None,
+               tokenizer=None):
     if lookup is None:
         lookup = num
     if operators is None:
-        operators = math_operators()
+        operators = maths_operators()
     if cast is None:
         cast = num
     if reducer is None:
@@ -31,10 +31,11 @@ def math_evil(expr, lookup=None, operators=None, cast=None, reducer=None,
                 reducer=reducer, tokenizer=tokenizer)
 
 
-def math_operators():
+def maths_operators():
     return [
         # Numeric operators
         op("!", math.factorial, left=True),
+        op("^", operator.pow),
         op("*", operator.mul),
         op("/", operator.truediv),
         op("+", operator.add),
@@ -42,14 +43,14 @@ def math_operators():
         # Boolean logic operators
         op("==", operator.eq),
         op("<>", operator.ne),
-        op(">", operator.eq),
+        op(">", operator.gt),
         op("<", operator.lt),
-        op(">=", operator.eq),
-        op("<=", operator.eq),
+        op(">=", operator.ge),
+        op("<=", operator.le),
         # Separator
         op(",", operator.add),
     ]
 
 if __name__ == "__main__":
     import sys
-    print math_evil(" ".join(sys.argv[1:]))
+    print maths_evil(" ".join(sys.argv[1:]))
