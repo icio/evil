@@ -14,6 +14,6 @@ setup(
     packages=["evil"],
     test_suite="tests",
     license="MIT",
-    keywords=['set', 'expression', 'eval', 'evaluate'],
+    keywords=['expression', 'eval', 'evaluate', 'math', 'set', 'graph'],
     classifiers=[],
 )

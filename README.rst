@@ -1,17 +1,16 @@
-Setquery
-========
+Evil
+====
 
-Setquery is a utility library for evaluating single expressions composed of patterns and operators across sets, allowing user expressivity beyond what command-line arguments can express.
+Evil is a utility library for evaluating single expressions composed of patterns and operators, allowing user expressivity beyond what command-line arguments can express.
 
 Development
 -----------
 
-To prepare an environment variable you must have nose and rednose installed::
+To run the unit tests for the project you can use Python's built-in unittest library with the following command (though `Nosetests`_ or highly recommended)::
 
-  $ virtualenv .
-  $ . bin/activate
-  (setquery)$ pip install nose rednose
-  (setquery)$ python setup.py -q nosetests
+  $ python setup.py test
   .............
   -----------------------------------------------------------------
-  13 tests run in 0.0 seconds (13 tests passed)
+  14 tests run in 0.0 seconds (14 tests passed)
+
+.. _Nosetests: http://nose.readthedocs.org/en/latest/
