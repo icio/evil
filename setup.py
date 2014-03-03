@@ -1,18 +1,19 @@
 #!/usr/bin/env python
 from setuptools import setup
 
-VERSION = "0.4"
+VERSION = "0.5"
 
 setup(
-    name="setquery",
+    name="evil",
     version=VERSION,
-    description="Set arithmetic evaluator",
+    description="Expression eviluator",
     author="Paul Scott",
     author_email="paul@duedil.com",
-    url="https://github.com/icio/setquery",
-    download_url="https://github.com/icio/setquery/tarball/%s" % VERSION,
-    py_modules=["setquery"],
+    url="https://github.com/icio/evil",
+    download_url="https://github.com/icio/evil/tarball/%s" % VERSION,
+    packages=["evil"],
+    test_suite="tests",
     license="MIT",
-    keywords=['set', 'expression', 'eval', 'evaluate'],
+    keywords=['expression', 'eval', 'evaluate', 'math', 'set', 'graph'],
     classifiers=[],
 )
