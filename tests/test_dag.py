@@ -7,16 +7,16 @@ from evil import op, strlookup
 from evil.set import set_evil, set_operators
 
 
-class EvilDACTestCase(TestCase):
+class EvilDAGTestCase(TestCase):
 
-    def test_daclookup(self):
+    def test_daglookup(self):
         def node_dependencies(node, graph):
             yield node
             for depnode in graph[node]:
                 for depdepnode in node_dependencies(depnode, graph):
                     yield depdepnode
 
-        # Create a DAC where each node has dependencies declared by name
+        # Create a DAG where each node has dependencies declared by name
         # +-----+       +-----+
         # | b.b |       | c.b |
         # +-----+       +-----+
